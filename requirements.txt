@@ -1,0 +1,2 @@
+# No external dependencies required for the basic chatbot
+# Python 3.6+ is required
