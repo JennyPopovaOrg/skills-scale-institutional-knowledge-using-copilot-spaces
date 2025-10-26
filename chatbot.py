@@ -13,42 +13,40 @@ class SimpleChatbot:
     
     def __init__(self):
         self.name = "ChatBot"
-        self.patterns = {
-            r'\b(hi|hello|hey)\b': [
+        # Pre-compile regex patterns for better performance
+        self.patterns = [
+            (re.compile(r'\b(hi|hello|hey)\b', re.IGNORECASE), [
                 "Hello! How can I help you today?",
                 "Hi there! What's on your mind?",
                 "Hey! Nice to meet you!"
-            ],
-            r'\b(how are you|how\'s it going)\b': [
+            ]),
+            (re.compile(r'\b(how are you|how\'s it going)\b', re.IGNORECASE), [
                 "I'm doing great, thank you for asking!",
                 "I'm functioning perfectly! How about you?",
                 "I'm here and ready to chat!"
-            ],
-            r'\b(what is your name|who are you)\b': [
+            ]),
+            (re.compile(r'\b(what is your name|who are you)\b', re.IGNORECASE), [
                 f"I'm {self.name}, your friendly chatbot!",
                 f"My name is {self.name}. Nice to meet you!",
                 f"I go by {self.name}. How can I assist you?"
-            ],
-            r'\b(what time|time is it)\b': [
-                f"The current time is {datetime.now().strftime('%H:%M:%S')}",
-                f"It's {datetime.now().strftime('%I:%M %p')} right now"
-            ],
-            r'\b(help|what can you do)\b': [
+            ]),
+            (re.compile(r'\b(what time|time is it)\b', re.IGNORECASE), 'time'),
+            (re.compile(r'\b(help|what can you do)\b', re.IGNORECASE), [
                 "I can chat with you! Try asking me about the time, how I'm doing, or just say hello!",
                 "I'm here to have a conversation. Ask me questions or just chat!",
                 "I can respond to greetings, tell you the time, and have basic conversations!"
-            ],
-            r'\b(bye|goodbye|see you)\b': [
+            ]),
+            (re.compile(r'\b(bye|goodbye|see you)\b', re.IGNORECASE), [
                 "Goodbye! Have a great day!",
                 "See you later! It was nice chatting with you!",
                 "Bye! Come back anytime!"
-            ],
-            r'\b(thank you|thanks)\b': [
+            ]),
+            (re.compile(r'\b(thank you|thanks)\b', re.IGNORECASE), [
                 "You're welcome!",
                 "Happy to help!",
                 "Anytime!"
-            ],
-        }
+            ]),
+        ]
         
         self.default_responses = [
             "I'm not sure I understand. Can you rephrase that?",
@@ -60,11 +58,15 @@ class SimpleChatbot:
     
     def get_response(self, user_input):
         """Get a response based on user input using pattern matching."""
-        user_input_lower = user_input.lower()
-        
         # Check each pattern
-        for pattern, responses in self.patterns.items():
-            if re.search(pattern, user_input_lower, re.IGNORECASE):
+        for pattern, responses in self.patterns:
+            if pattern.search(user_input):
+                # Handle special case for time
+                if responses == 'time':
+                    return random.choice([
+                        f"The current time is {datetime.now().strftime('%H:%M:%S')}",
+                        f"It's {datetime.now().strftime('%I:%M %p')} right now"
+                    ])
                 return random.choice(responses)
         
         # Default response if no pattern matches
